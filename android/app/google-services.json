@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1080223392931",
+    "project_id": "barrest-app",
+    "storage_bucket": "barrest-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080223392931:android:db01c3f04538d37151cb16",
+        "android_client_info": {
+          "package_name": "com.agenciatk.barrest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBB-hjUDHDmIl3VK440emwCQZu3_0noJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080223392931:android:8d0c849c0bed36ab51cb16",
+        "android_client_info": {
+          "package_name": "com.example.barrestapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBB-hjUDHDmIl3VK440emwCQZu3_0noJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
