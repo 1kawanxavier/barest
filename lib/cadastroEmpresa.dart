@@ -14,6 +14,7 @@ import 'package:barrestapp/text/politica_texto.dart';
 const String kCheckLicenseUrl    = 'https://barrest.tech/check_license.php';
 const String kGetCategoriesUrl   = 'https://barrest.tech/get_categories.php';
 const String kRegisterCompanyUrl = 'https://barrest.tech/register_company.php';
+const String kContratoEmpresaUrl = 'https://barrest.tech/get_contrato_empresa.php';
 
 class CadastroEmpresaPage extends StatefulWidget {
   const CadastroEmpresaPage({super.key});
@@ -210,6 +211,113 @@ class _CadastroEmpresaPageState extends State<CadastroEmpresaPage> {
     final first = mapa[parts[0]] ?? parts[0];
     return ([first, ...parts.sublist(1)]).join(' ');
   }
+Future<void> _abrirContrato() async {
+  final nome      = nomeController.text.trim();
+  final nomeEstab = nomeEstabController.text.trim();
+  final email     = emailController.text.trim();
+  final cnpj      = cnpjController.text.trim();
+  final endereco  = _padronizarEndereco(enderecoController.text.trim());
+  final cidade    = cidadeDetectada;
+
+  bool abriuLoading = false;
+
+  try {
+    abriuLoading = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFFD4AF37)),
+      ),
+    );
+
+    final resp = await http.post(
+      Uri.parse(kContratoEmpresaUrl),
+      headers: {'Content-Type': 'application/json; charset=utf-8'},
+      body: json.encode({
+        'nome_responsavel': nome,
+        'nome_estabelecimento': nomeEstab,
+        'email': email,
+        'cnpj': cnpj,
+        'endereco': endereco,
+        'cidade': cidade,
+        'categorias': selecionadas.join(','),
+      }),
+    );
+
+    debugPrint('STATUS CONTRATO: ${resp.statusCode}');
+    debugPrint('BODY CONTRATO: ${resp.body}');
+
+    if (!mounted) return;
+
+    if (abriuLoading) {
+      Navigator.of(context, rootNavigator: true).pop();
+      abriuLoading = false;
+    }
+
+    if (resp.statusCode != 200) {
+      throw 'HTTP ${resp.statusCode}: ${resp.body}';
+    }
+
+    final decoded = json.decode(resp.body);
+
+    if (decoded is! Map<String, dynamic>) {
+      throw 'Resposta inválida do servidor.';
+    }
+
+    if (decoded['success'] != true) {
+      throw decoded['message'] ?? 'Erro ao carregar contrato.';
+    }
+
+    final contrato = decoded['contrato']?.toString() ?? '';
+
+    if (contrato.isEmpty) {
+      throw 'Contrato veio vazio do servidor.';
+    }
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF1E2D24),
+        title: const Text(
+          'Termos e Condições',
+          style: TextStyle(color: Color(0xFFD4AF37)),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: MediaQuery.of(context).size.height * 0.65,
+          child: SingleChildScrollView(
+            child: Text(
+              contrato,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+            child: const Text(
+              'Fechar',
+              style: TextStyle(color: Color(0xFFD4AF37)),
+            ),
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    debugPrint('ERRO CONTRATO: $e');
+
+    if (!mounted) return;
+
+    if (abriuLoading && Navigator.of(context, rootNavigator: true).canPop()) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erro ao abrir contrato: $e')),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -313,10 +421,16 @@ class _CadastroEmpresaPageState extends State<CadastroEmpresaPage> {
                             activeColor: const Color(0xFFD4AF37),
                             onChanged: (val) => setState(() => aceitouTermos = val ?? false),
                           ),
-                          const Expanded(
-                            child: Text(
-                              'Aceito os Termos e Condições',
-                              style: TextStyle(color: Colors.white, decoration: TextDecoration.underline),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _abrirContrato,
+                              child: const Text(
+                                'Aceito os Termos e Condições',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
                             ),
                           ),
                         ],

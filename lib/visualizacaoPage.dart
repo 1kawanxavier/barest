@@ -238,6 +238,21 @@ class _VisualizacaoPageState extends State<VisualizacaoPage>
                         Navigator.pushNamed(context, '/historico');
                       },
                     ),
+                    
+                    ListTile(
+                      leading: const Icon(
+                        Icons.delete_forever,
+                        color: Color(0xFFD4AF37),
+                      ),
+                      title: const Text(
+                        'Deletar conta',
+                        style: TextStyle(color: Color(0xFFD4AF37)),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/deletarConta');
+                      },
+                    ),
                     const Spacer(),
                     const Divider(color: Color(0xFFD4AF37)),
                     ListTile(

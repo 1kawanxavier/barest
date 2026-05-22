@@ -1,4 +1,5 @@
 import 'package:barrestapp/admin/inicio.dart';
+import 'package:barrestapp/deletarContaPage.dart';
 import 'package:flutter/material.dart';
 
 // Suas páginas
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/editarCardapio': (context) => const EditarCardapioPage(),
         '/adicionarItem': (context) => const AdicionarItemPage(),
         '/adminPage': (_)            => const AdminPage(),
+        '/deletarConta': (context) => const DeletarContaPage(),
       },
     );
   }
