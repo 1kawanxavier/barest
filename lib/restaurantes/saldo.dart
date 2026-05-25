@@ -134,7 +134,34 @@ class _SaldoPageState extends State<SaldoPage> with WidgetsBindingObserver {
       debugPrint('Erro ao buscar transações: $e');
     }
   }
+Widget _botaoValorSugerido(double valor) {
+  return OutlinedButton(
+    style: OutlinedButton.styleFrom(
+      side: const BorderSide(color: Color(0xFFD4AF37)),
+      foregroundColor: const Color(0xFFD4AF37),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    ),
+    onPressed: () => _adicionarValorSugerido(valor),
+    child: Text(
+      'R\$ ${valor.toStringAsFixed(0)}',
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    ),
+  );
+}
+void _adicionarValorSugerido(double valor) {
+  final textoAtual = _valorCtrl.text.replaceAll(',', '.').trim();
+  final valorAtual = double.tryParse(textoAtual) ?? 0.0;
 
+  final novoValor = valorAtual + valor;
+
+  _valorCtrl.text = novoValor.toStringAsFixed(2);
+  _valorCtrl.selection = TextSelection.fromPosition(
+    TextPosition(offset: _valorCtrl.text.length),
+  );
+}
   Future<void> _showAdicionarSaldoDialog() async {
     if (usuarioId == null) return;
     _valorCtrl.clear();
@@ -151,21 +178,51 @@ class _SaldoPageState extends State<SaldoPage> with WidgetsBindingObserver {
           style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
-        content: TextField(
-          controller: _valorCtrl,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
+      content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Escolha um valor rápido ou digite manualmente:',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 14),
+
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                _botaoValorSugerido(10),
+                _botaoValorSugerido(15),
+                _botaoValorSugerido(30),
+              ],
+            ),
+
+            const SizedBox(height: 18),
+
+            TextField(
+              controller: _valorCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
+              style: const TextStyle(color: Colors.white, fontSize: 20),
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(
+                prefixText: 'R\$ ',
+                prefixStyle: TextStyle(color: Color(0xFFD4AF37)),
+                hintText: '0.00',
+                hintStyle: TextStyle(color: Colors.white38),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Color(0xFFD4AF37)),
+                ),
+              ),
+            ),
           ],
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            hintText: '0.00',
-            hintStyle: TextStyle(color: Colors.white38),
-            enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white24)),
-            focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFD4AF37))),
-          ),
         ),
         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         actions: [

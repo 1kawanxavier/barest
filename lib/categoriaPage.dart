@@ -23,6 +23,7 @@ class _CategoriasPageState extends State<CategoriasPage> {
   String cidade = 'Localizando...';
   String textoBusca = '';
   String usuarioNome = '';
+  bool usuarioLogado = false;
   bool _modalAberto = false;
 
   static const String promoId = '0f4aacce-7463-11f0-99b4-d23bafbfaf2f';
@@ -36,10 +37,13 @@ class _CategoriasPageState extends State<CategoriasPage> {
 
   Future<void> carregarUsuarioNome() async {
     final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('usuario_id');
     final nome = prefs.getString('usuario_nome');
-    if (nome != null && nome.isNotEmpty) {
-      setState(() => usuarioNome = nome);
-    }
+
+    setState(() {
+      usuarioLogado = id != null && id.isNotEmpty;
+      usuarioNome = nome ?? '';
+    });
   }
 
   int _diaAtual() {
@@ -249,6 +253,10 @@ class _CategoriasPageState extends State<CategoriasPage> {
   }
 
   void _abrirMenuLateral() {
+        if (!usuarioLogado) {
+      Navigator.pushNamed(context, '/login');
+      return;
+    }
     showGeneralDialog(
       context: context,
       barrierDismissible: true,

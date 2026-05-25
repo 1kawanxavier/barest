@@ -266,7 +266,7 @@ class _VisualizacaoPageState extends State<VisualizacaoPage>
                         if (context.mounted) {
                           Navigator.of(
                             context,
-                          ).pushNamedAndRemoveUntil('/login', (_) => false);
+                          ).pushNamedAndRemoveUntil('/categoria', (_) => false);
                         }
                       },
                     ),
@@ -505,10 +505,15 @@ class _VisualizacaoPageState extends State<VisualizacaoPage>
         backgroundColor: const Color(0xFF1E2D24),
         elevation: 0,
         toolbarHeight: 140,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Color(0xFFD4AF37)),
-          onPressed: _abrirMenuLateral,
-        ),
+        leading: usuarioId != null
+        ? IconButton(
+            icon: const Icon(Icons.menu, color: Color(0xFFD4AF37)),
+            onPressed: _abrirMenuLateral,
+          )
+        : IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFFD4AF37)),
+            onPressed: () => Navigator.pop(context),
+          ),
         centerTitle: true,
         title: SizedBox(
           height: 110,
@@ -638,6 +643,70 @@ class ReservaMesaForm extends StatefulWidget {
 }
 
 class _ReservaMesaFormState extends State<ReservaMesaForm> {
+  Future<void> _mostrarAvisoLoginNecessario() async {
+  await showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      backgroundColor: const Color(0xFF1E2D24),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: Color(0xFFD4AF37), width: 1),
+      ),
+      title: const Column(
+        children: [
+          Icon(
+            Icons.lock_outline,
+            color: Color(0xFFD4AF37),
+            size: 48,
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Entre para reservar',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color(0xFFD4AF37),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      content: const Text(
+        'Para reservar uma mesa, você precisa entrar na sua conta ou criar um cadastro gratuito no aplicativo.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Colors.white70, fontSize: 15),
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            'Agora não',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFD4AF37),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, '/login');
+          },
+          child: const Text(
+            'Entrar ou criar conta',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
   DateTime data = DateTime.now();
   TimeOfDay hora = TimeOfDay.fromDateTime(
     DateTime.now().add(const Duration(hours: 1)),
@@ -1171,9 +1240,22 @@ class _ReservaMesaFormState extends State<ReservaMesaForm> {
                     '$pessoas',
                     style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
+                  const SizedBox(width: 8),
+
+                  if (pessoas >= 4)
+                    const Text(
+                      'Máx. 4',
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   IconButton(
                     icon: const Icon(Icons.add, color: Color(0xFFD4AF37)),
-                    onPressed: () => setState(() => pessoas++),
+                    onPressed: pessoas < 4
+                    ? () => setState(() => pessoas++)
+                    : null,
                   ),
                 ],
               ),
@@ -1192,10 +1274,10 @@ class _ReservaMesaFormState extends State<ReservaMesaForm> {
           onPressed: () async {
             final prefs = await SharedPreferences.getInstance();
             final usuarioIdLocal = prefs.getString('usuario_id');
-            if (usuarioIdLocal == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Usuário não identificado.')),
-              );
+
+
+            if (usuarioIdLocal == null || usuarioIdLocal.isEmpty) {
+              await _mostrarAvisoLoginNecessario();
               return;
             }
 

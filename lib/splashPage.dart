@@ -35,7 +35,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     // Depois de 3 segundos, navega para a home
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushReplacementNamed('/categoria');
     });
   }
 
