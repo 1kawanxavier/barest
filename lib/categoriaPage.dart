@@ -252,11 +252,8 @@ class _CategoriasPageState extends State<CategoriasPage> {
     }
   }
 
-  void _abrirMenuLateral() {
-        if (!usuarioLogado) {
-      Navigator.pushNamed(context, '/login');
-      return;
-    }
+void _abrirMenuLateral() {
+  if (!usuarioLogado) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -277,86 +274,22 @@ class _CategoriasPageState extends State<CategoriasPage> {
                     icon: const Icon(Icons.close, color: Color(0xFFD4AF37)),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.person, color: Color(0xFFD4AF37)),
+                  const ListTile(
+                    leading: Icon(Icons.person_outline, color: Color(0xFFD4AF37)),
                     title: Text(
-                      usuarioNome.isNotEmpty ? usuarioNome : 'Usuário',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.account_balance_wallet,
-                      color: Color(0xFFD4AF37),
-                    ),
-                    title: const Text(
-                      'Saldo',
-                      style: TextStyle(color: Color(0xFFD4AF37)),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SaldoPage()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.room_service,
-                      color: Color(0xFFD4AF37),
-                    ),
-                    title: const Text(
-                      'Reservas',
-                      style: TextStyle(color: Color(0xFFD4AF37)),
-                    ),
-                    onTap: () async {
-                      Navigator.of(context).pop();
-                      await buscarERedirecionarReservaAtiva();
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.bookmark,
-                      color: Color(0xFFD4AF37),
-                    ),
-                    title: const Text(
-                      'Histórico',
-                      style: TextStyle(color: Color(0xFFD4AF37)),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.pushNamed(context, '/historico');
-                    },
-                  ),
-                  ListTile(
-                      leading: const Icon(
-                        Icons.delete_forever,
-                        color: Color(0xFFD4AF37),
-                      ),
-                      title: const Text(
-                        'Deletar conta',
-                        style: TextStyle(color: Color(0xFFD4AF37)),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        Navigator.pushNamed(context, '/deletarConta');
-                      },
-                    ),
-                  const Spacer(),
-                  const Divider(color: Color(0xFFD4AF37)),
-                  ListTile(
-                    title: const Text(
-                      'Sair',
+                      'Visitante',
                       style: TextStyle(color: Colors.white),
                     ),
-                    onTap: () async {
-                      final prefs = await SharedPreferences.getInstance();
-                      await prefs.remove('usuario_id');
-                      await prefs.remove('usuario_nome');
-                      Navigator.of(
-                        context,
-                      ).pushNamedAndRemoveUntil('/login', (route) => false);
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.login, color: Color(0xFFD4AF37)),
+                    title: const Text(
+                      'Entrar ou criar conta',
+                      style: TextStyle(color: Color(0xFFD4AF37)),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.pushNamed(context, '/login');
                     },
                   ),
                 ],
@@ -365,16 +298,35 @@ class _CategoriasPageState extends State<CategoriasPage> {
           ),
         );
       },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedValue = Curves.easeInOut.transform(animation.value) - 1.0;
-        return Transform.translate(
-          offset: Offset(-250 * curvedValue, 0.0),
-          child: child,
-        );
-      },
     );
+    return;
   }
 
+  // aqui continua o menu normal do usuário logado
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: '',
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation1, animation2) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Material(
+          color: const Color(0xFF1E2D24),
+          child: SizedBox(
+            width: 250,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // seu menu atual de usuário logado
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
   Future<void> obterCidadeAtual() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
