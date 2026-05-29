@@ -253,56 +253,6 @@ class _CategoriasPageState extends State<CategoriasPage> {
   }
 
 void _abrirMenuLateral() {
-  if (!usuarioLogado) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (context, animation1, animation2) {
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Material(
-            color: const Color(0xFF1E2D24),
-            child: SizedBox(
-              width: 250,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 40),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Color(0xFFD4AF37)),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const ListTile(
-                    leading: Icon(Icons.person_outline, color: Color(0xFFD4AF37)),
-                    title: Text(
-                      'Visitante',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.login, color: Color(0xFFD4AF37)),
-                    title: const Text(
-                      'Entrar ou criar conta',
-                      style: TextStyle(color: Color(0xFFD4AF37)),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.pushNamed(context, '/login');
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-    return;
-  }
-
-  // aqui continua o menu normal do usuário logado
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
@@ -314,12 +264,122 @@ void _abrirMenuLateral() {
         child: Material(
           color: const Color(0xFF1E2D24),
           child: SizedBox(
-            width: 250,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // seu menu atual de usuário logado
-              ],
+            width: 280,
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Color(0xFFD4AF37)),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      usuarioLogado
+                          ? 'Olá, ${usuarioNome.isEmpty ? 'Usuário' : usuarioNome}'
+                          : 'Visitante',
+                      style: const TextStyle(
+                        color: Color(0xFFD4AF37),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  const Divider(color: Color(0xFFD4AF37)),
+
+                  if (!usuarioLogado) ...[
+                    ListTile(
+                      leading: const Icon(Icons.login, color: Color(0xFFD4AF37)),
+                      title: const Text(
+                        'Entrar ou criar conta',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/login');
+                      },
+                    ),
+                  ] else ...[
+                    ListTile(
+                      leading: const Icon(Icons.account_balance_wallet, color: Color(0xFFD4AF37)),
+                      title: const Text(
+                        'Saldo',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SaldoPage()),
+                        );
+                      },
+                    ),
+
+                    ListTile(
+                      leading: const Icon(Icons.event_available, color: Color(0xFFD4AF37)),
+                      title: const Text(
+                        'Reservas',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        buscarERedirecionarReservaAtiva();
+                      },
+                    ),
+
+                    ListTile(
+                      leading: const Icon(Icons.history, color: Color(0xFFD4AF37)),
+                      title: const Text(
+                        'Histórico',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/historico');
+                      },
+                    ),
+
+                    ListTile(
+                      leading: const Icon(Icons.delete_forever, color: Colors.redAccent),
+                      title: const Text(
+                        'Deletar conta',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.pushNamed(context, '/deletarConta');
+                      },
+                    ),
+
+                    const Divider(color: Color(0xFFD4AF37)),
+
+                    ListTile(
+                      leading: const Icon(Icons.logout, color: Color(0xFFD4AF37)),
+                      title: const Text(
+                        'Sair',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.remove('usuario_id');
+                        await prefs.remove('usuario_nome');
+
+                        if (!mounted) return;
+
+                        setState(() {
+                          usuarioLogado = false;
+                          usuarioNome = '';
+                        });
+
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
